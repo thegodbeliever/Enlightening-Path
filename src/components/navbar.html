@@ -1,0 +1,39 @@
+<nav class="flex justify-between items-center px-4 py-2 bg-black dark:bg-gray-800 shadow-md">
+  <div class="text-2xl font-bold text-cyan-600">
+    <a href="welcome.html"><i class="fa-brands fa-studiovinari"></i>Enlightening Path</a>
+  </div>
+
+  
+    <!-- Dark Mode Toggle -->
+    <button id="themeToggle" class="ml-4 text-2xl transition-colors duration-300 text-gray-700 dark:text-yellow-400 hover:text-cyan-500">
+      🌙
+    </button>
+  </div>
+</nav>
+
+<script>
+  const themeToggle = document.getElementById('themeToggle');
+  const html = document.documentElement;
+
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      html.classList.add('dark');
+      themeToggle.textContent = '☀️';
+    } else {
+      html.classList.remove('dark');
+      themeToggle.textContent = '🌙';
+    }
+  }
+
+  // Load theme from storage
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  applyTheme(savedTheme);
+
+  // Toggle theme on button click
+  themeToggle.addEventListener('click', () => {
+    const currentTheme = html.classList.contains('dark') ? 'dark' : 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', newTheme);
+    applyTheme(newTheme);
+  });
+</script>

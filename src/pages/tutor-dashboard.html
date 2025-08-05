@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tutor Dashboard | Enlightening Path</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase -->
+  <script type="module">
+    // Firebase config is moved to firebase.js
+  </script>
+
+  <!-- FontAwesome -->
+  <script src="https://kit.fontawesome.com/50f49c2d41.js" crossorigin="anonymous"></script>
+</head>
+
+<body class="bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-white dark:bg-gray-800 px-6 py-4 flex justify-between items-center shadow">
+    <div class="text-xl font-bold text-cyan-600">Enlightening Path</div>
+
+    <div class="flex items-center gap-4">
+      <!-- Dark Mode Toggle -->
+      <button id="themeToggle" class="text-xl focus:outline-none">
+        <i class="fas fa-moon hidden dark:inline"></i>
+        <i class="fas fa-sun dark:hidden"></i>
+      </button>
+
+      <!-- Logout Button -->
+      <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+        Sign Out
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="p-6">
+    <h1 class="text-2xl font-bold mb-4 text-cyan-500">Welcome, Tutor 👋</h1>
+    <p class="mb-8 text-gray-400">Here you can upload notes for students to access and learn from.</p>
+
+    <!-- Upload Notes Section -->
+    <div class="bg-gray-800 text-white p-6 rounded shadow-md max-w-xl">
+      <h2 class="text-xl font-semibold mb-4">📤 Upload New Note</h2>
+
+      <form id="uploadForm" class="space-y-4">
+        <input id="noteTitle" type="text" placeholder="Note Title" required
+          class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded focus:ring-2 focus:ring-cyan-500" />
+
+        <textarea id="noteDescription" placeholder="Short Description" required
+          class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded focus:ring-2 focus:ring-cyan-500"></textarea>
+
+        <input id="noteFile" type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" required
+          class="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-cyan-600 file:text-white hover:file:bg-cyan-700"/>
+
+        <button type="submit" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded font-semibold">
+          Upload Note
+        </button>
+      </form>
+
+      <div id="uploadStatus" class="mt-4 text-green-400 hidden">✅ Note uploaded successfully!</div>
+    </div>
+  </main>
+
+  <!-- Firebase logic -->
+  <script type="module">
+    import { app, auth, db } from "../firebase.js";
+    import {
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-auth.js";
+    import {
+      getStorage,
+      ref,
+      uploadBytes,
+      getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-storage.js";
+    import {
+      collection,
+      addDoc,
+      Timestamp
+    } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore.js";
+
+    const storage = getStorage(app);
+
+    // 🔁 Check user auth state
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "../pages/signIn.html";
+      }
+    });
+
+    // 🔒 Logout
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "../welcome.html";
+    });
+
+    // 🌓 Dark/Light toggle
+    const toggleBtn = document.getElementById("themeToggle");
+    toggleBtn.addEventListener("click", () => {
+      document.documentElement.classList.toggle("dark");
+    });
+
+    // 📤 Upload Notes Handler
+    document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById("noteTitle").value.trim();
+      const description = document.getElementById("noteDescription").value.trim();
+      const file = document.getElementById("noteFile").files[0];
+      const status = document.getElementById("uploadStatus");
+
+      if (!file) return alert("Please select a file.");
+
+      try {
+        const fileRef = ref(storage, `notes/${auth.currentUser.uid}/${file.name}`);
+        await uploadBytes(fileRef, file);
+        const fileURL = await getDownloadURL(fileRef);
+
+        await addDoc(collection(db, "notes"), {
+          title,
+          description,
+          fileURL,
+          uploadedBy: auth.currentUser.email,
+          createdAt: Timestamp.now()
+        });
+
+        status.classList.remove("hidden");
+        e.target.reset();
+      } catch (err) {
+        alert("Upload failed: " + err.message);
+      }
+    });
+  </script>
+</body>
+</html>

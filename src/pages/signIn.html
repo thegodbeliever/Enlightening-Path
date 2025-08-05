@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Log In | Enlightening Path</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen px-4">
+
+  <div class="bg-gray-800 border border-gray-700 rounded-lg p-8 w-full max-w-md shadow-md">
+    <h2 class="text-2xl font-bold mb-1 text-center">Welcome Back</h2>
+    <p class="text-sm text-gray-400 mb-6 text-center">Log in to Enlightening Path</p>
+
+    <!-- Google Sign In -->
+    <div class="mb-4">
+      <button id="googleSignIn" class="w-full flex items-center justify-center gap-3 bg-gray-700 hover:bg-gray-600 border border-gray-600 px-4 py-2 rounded">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5" />
+        Sign in with Google
+      </button>
+    </div>
+
+    <div class="my-4 border-t border-gray-600 text-center text-sm text-gray-400">OR</div>
+
+    <!-- Sign In Form -->
+    <form id="loginForm" class="space-y-4">
+      <input id="email" type="email" placeholder="Email" required class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded" />
+      <input id="password" type="password" placeholder="Password" required class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded" />
+
+      <select id="userRole" required class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded">
+        <option value="">Select Role</option>
+        <option value="student">Student</option>
+        <option value="tutor">Tutor</option>
+      </select>
+
+      <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2 rounded font-semibold">
+        Log In
+      </button>
+    </form>
+
+    <p class="text-sm text-center mt-6 text-gray-400">
+      Don't have an account? <a href="signUp.html" class="text-cyan-400 hover:underline">Sign up</a>
+    </p>
+  </div>
+
+  <!-- Firebase Script -->
+  <script type="module">
+    import { auth, db } from '../js/firebase.js';
+    import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-auth.js";
+    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore.js";
+
+    const loginForm = document.getElementById("loginForm");
+    const googleBtn = document.getElementById("googleSignIn");
+
+    // Email/Password login
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const role = document.getElementById("userRole").value;
+
+      if (!role) {
+        alert("Please select a role.");
+        return;
+      }
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists() && docSnap.data().role === role) {
+          window.location.href = `/src/pages/${role}-dashboard.html`;
+        } else {
+          alert("Role mismatch or account not found.");
+        }
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
+    // Google login
+    googleBtn.addEventListener("click", async () => {
+      const role = document.getElementById("userRole").value;
+      if (!role) {
+        alert("Please select a role before signing in with Google.");
+        return;
+      }
+
+      const provider = new GoogleAuthProvider();
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (!userDoc.exists()) {
+          // First-time Google sign-in
+          await setDoc(userDocRef, {
+            email: user.email,
+            role,
+            createdAt: new Date()
+          });
+        } else if (userDoc.data().role !== role) {
+          alert("Role mismatch. You selected the wrong role.");
+          return;
+        }
+
+        window.location.href = `/src/pages/${role}-dashboard.html`;
+
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    box-sizing: border-box;
+    font-family: cursive;
+}
+
+/* Header Styles */
+header {
+    background-color: rgb(0, 0, 0);
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 20px;
+}
+
+
+
+header nav {
+    display: flex;
+    gap: 30px;
+}
+
+header nav a {
+    color: whitesmoke;
+    font-size: 16px;
+    padding: 0 15px;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: rgb(13, 190, 230);
+}
+
+/* Content Section */
+.content {
+    height: 100vh;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)),
+                url("background.jpg") no-repeat center center/cover;
+    background-size: cover;
+    color: whitesmoke;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+}
+
+.content h1 {
+    margin: 20px;
+    text-align: center;
+    font-size: 32px;
+    color: rgb(13, 190, 230);
+}
+
+.content p {
+    margin: 20px;
+    padding: 10px 20%;
+    text-align: center;
+    font-size: 16px;
+    color: whitesmoke;
+}
+
+.content .buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.content .buttons a {
+    text-decoration: none;
+    padding: 15px 30px;
+    background-color: rgba(0, 0, 0, 0.4);
+    color: whitesmoke;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: color 0.3 ease;
+}
+
+.content .buttons a:hover {
+    color: rgb(13, 190, 230);
+}
+
+.logo {
+    color: rgb(13, 190, 230);
+    font-size: 20px;
+    font-weight: bold;
+}
+
+
+
+
+@media (max-width: 1024px) {
+    header nav a {
+        font-size: 14px;
+        padding: 0 10px;
+    }
+
+    .content h1 {
+        font-size: 28px;
+    }
+
+    .content p {
+        font-size: 16px;
+        padding: 10px 15%;
+    }
+
+    .content .buttons a {
+        padding: 12px 25px;
+        font-size: 0.9rem;
+    }
+}
+
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        height: auto;
+        padding: 10px;
+    }
+
+    .logo {
+        margin-bottom: 10px;
+        font-size: 22px;
+    }
+
+    header nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    header nav a {
+        font-size: 14px;
+        padding: 5px 0;
+    }
+
+    .content h1 {
+        font-size: 24px;
+    }
+
+    .content p {
+        font-size: 14px;
+        padding: 10px 10%;
+    }
+
+    .content .buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .content .buttons a {
+        width: 100%;
+        text-align: center;
+        padding: 12px 0;
+        font-size: 0.9rem;
+    }
+}
+
+
+@media (max-width: 480px) {
+    .logo {
+        font-size: 18px;
+    }
+
+    header nav a {
+        font-size: 12px;
+    }
+
+    .content h1 {
+        font-size: 20px;
+    }
+
+    .content p {
+        font-size: 12px;
+        padding: 10px 5%;
+    }
+
+    .content .buttons a {
+        padding: 10px 0;
+        font-size: 0.8rem;
+    }
+}

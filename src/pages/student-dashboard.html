@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen">
+
+  <!-- Navbar -->
+  <div class="flex justify-between items-center p-4 border-b border-gray-700">
+    <h1 class="text-2xl font-bold text-cyan-500">Welcome, <span id="userRole">Student</span> 👋</h1>
+    <button id="logoutBtn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+      Logout
+    </button>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div class="p-6">
+    <div class="text-lg mb-4">Hello, <span id="userEmail">Loading...</span></div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="p-4 bg-gray-800 rounded shadow text-white">
+        <h2 class="text-xl font-semibold mb-2">Available Tutors</h2>
+        <p>Explore the best tutors based on your subjects and levels.</p>
+      </div>
+      <div class="p-4 bg-gray-800 rounded shadow text-white">
+        <h2 class="text-xl font-semibold mb-2">Your Enrolled Courses</h2>
+        <p>Manage and view your ongoing courses.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase + Logic -->
+  <script type="module">
+    import { auth, db } from "../../firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore.js";
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "../../welcome.html";
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "../../signIn.html";
+        return;
+      }
+
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        document.getElementById("userEmail").textContent = userData.email;
+        document.getElementById("userRole").textContent = userData.role.charAt(0).toUpperCase() + userData.role.slice(1);
+      } else {
+        alert("User data not found!");
+      }
+    });
+  </script>
+
+</body>
+</html>
