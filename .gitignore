@@ -1,7 +1,4 @@
- # Ignore environment variable files
-.env
 
-# Node modules (if using Node)
 node_modules/
 
 # System files
